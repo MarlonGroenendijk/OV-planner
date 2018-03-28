@@ -1,5 +1,6 @@
 OV-planner scripts (based upon 9292 API)
 
+![output of departures script](https://my.mixtape.moe/wbwjdq.png "departures.sh")
 
 departures.sh: list departures train/bus
 
