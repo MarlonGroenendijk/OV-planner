@@ -1,6 +1,5 @@
 #!/bin/bash
-
-#wget https://api.9292.nl/0.1/locations/station-amersfoort/departure-times?lang=nl-NL -O /tmp/deptimes -o /dev/null
+wget https://api.9292.nl/0.1/locations/station-vlissingen/departure-times?lang=nl-NL -O /tmp/deptimes -o /dev/null
 
 #Train
 readarray -t destTrain < <(cat /tmp/deptimes | jq -r '.tabs[0] .departures[] .destinationName')
@@ -54,6 +53,9 @@ do
 	if [[ ${operatorTrain[$ix]} = "NS International" ]]; then
 		operatorTrainIcon[$ix]="" 
 	fi
+	if [[ ${operatorTrain[$ix]} = "Abellio" ]]; then
+		operatorTrainIcon[$ix]="" 
+	fi
 	if [[ ${operatorTrain[$ix]} = "NMBS" ]]; then
 		operatorTrainIcon[$ix]="" 
 	fi
@@ -64,7 +66,7 @@ do
 	echo -e "\e[32m${operatorTrainIcon[$ix]}  ${operatorTrain[$ix]} \t\e[33m ${typeTrain[$ix]}\t\e[32m\e[1mRichting:\e[0m\e[39m ${destTrain[$ix]}\t\e[32m\e[1mVertrek:\e[0m\e[39m ${timeTrain[$ix]} \e[32m\e[1mSpoor:\e[0m\e[39m ${platformTrain[$ix]}"
 	if [ ! "${remarkTrain[$ix]}" == "null" ]
 	then
-		echo -e " ^ \e[31m\e[1m  ${remarkTrain[$ix]}\e[0m ^"
+		echo -e "   \e[93m  \e[31m\e[1m${remarkTrain[$ix]}\e[0m "
 	else
 		echo -n ""
 	fi
@@ -74,7 +76,59 @@ echo "Bus"
 
 for ix in ${!destBus[*]}
 do
-	echo -ne "\e[32m${operatorBus[$ix]} \e[33m  \e[93m ${numberBus[$ix]}\t\e[32m\e[1mRichting:\t\e[0m\e[39m ${destBus[$ix]}\t\e[32m\e[1mVertrek:\e[0m\e[39m ${timeBus[$ix]}"
+	if [[ ${operatorBus[$ix]} = "Arriva" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Breng" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Syntus" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "OV Regio IJsselmond" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Prov Zeeland" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "GVU" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Connexxion" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Qbuzz" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Levelink" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "U-OV" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "EBS" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Flixbus" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "HTM" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "HTMbuzz" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "GVB" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "RET" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+	if [[ ${operatorBus[$ix]} = "Hermes" ]]; then
+		operatorBusIcon[$ix]="" 
+	fi
+
+	echo -ne "\e[32m${operatorBusIcon[$ix]} ${operatorBus[$ix]} \e[33m  \e[93m ${numberBus[$ix]}\t\e[32m\e[1mRichting:\e[0m\e[39m ${destBus[$ix]}\t\e[32m\e[1mVertrek:\e[0m\e[39m ${timeBus[$ix]}"
 	if [ ! "${delayedBus[$ix]}" == "null" ]
 	then
 		echo -e "\e[31m\e[1m${delayedBus[$ix]}\e[0m" 
