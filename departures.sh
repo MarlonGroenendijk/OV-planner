@@ -1,5 +1,15 @@
 #!/bin/bash
-wget https://api.9292.nl/0.1/locations/station-vlissingen/departure-times?lang=nl-NL -O /tmp/deptimes -o /dev/null
+
+wget -q https://upload.wikimedia.org/wikipedia/commons/7/7e/Aiga_railtransportation.svg -O /tmp/AIGA-train.svg
+wget -q https://upload.wikimedia.org/wikipedia/commons/9/93/Aiga_bus.svg -O /tmp/AIGA-bus.svg
+
+if [ -z "$1" ]
+	then
+        echo -e "USAGE: departures arnhem\n [script] [location of train station]\n"
+	wget -q https://api.9292.nl/0.1/locations/station-arnhem/departure-times?lang=nl-NL -O /tmp/deptimes
+	else
+	wget -q https://api.9292.nl/0.1/locations/station-$1/departure-times?lang=nl-NL -O /tmp/deptimes
+fi
 
 #Train
 readarray -t destTrain < <(cat /tmp/deptimes | jq -r '.tabs[0] .departures[] .destinationName')
@@ -9,10 +19,14 @@ readarray -t remarkTrain < <(cat /tmp/deptimes | jq -r '.tabs[0] .departures[] .
 readarray -t typeTrain < <(cat /tmp/deptimes | jq -r '.tabs[0] .departures[] .mode .name')
 readarray -t operatorTrain < <(cat /tmp/deptimes | jq -r '.tabs[0] .departures[] .operatorName')
 
+#Generic
+readarray -t stationName < <(cat /tmp/deptimes | jq -r '.location .name')
+
 #Bus
 readarray -t destBus < <(cat /tmp/deptimes | jq -r '.tabs[1] .departures[] .destinationName')
 readarray -t numberBus < <(cat /tmp/deptimes | jq -r '.tabs[1] .departures[] .service')
 readarray -t timeBus < <(cat /tmp/deptimes | jq -r '.tabs[1] .departures[] .time')
+readarray -t remarkBus < <(cat /tmp/deptimes | jq -r '.tabs[1] .departures[] .remark')
 readarray -t operatorBus < <(cat /tmp/deptimes | jq -r '.tabs[1] .departures[] .operatorName')
 readarray -t delayedBus < <(cat /tmp/deptimes | jq -r '.tabs[1] .departures[] .realtimeText')
 
@@ -67,6 +81,7 @@ do
 	if [ ! "${remarkTrain[$ix]}" == "null" ]
 	then
 		echo -e "   \e[93m  \e[31m\e[1m${remarkTrain[$ix]}\e[0m "
+		notify-send "${operatorTrainIcon[$ix]} ${stationName[0]}" " Trein richting ${destTrain[$ix]}\n${remarkTrain[$ix]}" -h string:"image_path":"/tmp/AIGA-train.svg"
 	else
 		echo -n ""
 	fi
@@ -134,5 +149,10 @@ do
 		echo -e "\e[31m\e[1m${delayedBus[$ix]}\e[0m" 
 	else
 		echo ""
+	fi
+	if [ ! "${remarkBus[$ix]}" == "null" ]
+	then
+		echo -e "   \e[93m  \e[31m\e[1m${remarkBus[$ix]}\e[0m "
+		notify-send "${operatorBusIcon[$ix]} ${stationName[0]}" " Bus ${numberBus[$ix]} richting ${destBus[$ix]}\n${remarkBus[$ix]}" -h string:"image_path":"/tmp/AIGA-bus.svg"
 	fi
 done
