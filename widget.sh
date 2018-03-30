@@ -12,6 +12,7 @@ readarray -t numberBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] 
 readarray -t timeBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .time')
 readarray -t operatorBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .operatorName')
 readarray -t delayedBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .realtimeText')
+
 	if [[ ${operatorBus[$1]} = "Arriva" ]]; then
 		operatorBusIcon[$1]="" 
 	fi
@@ -63,9 +64,11 @@ readarray -t delayedBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[]
 	if [[ ${operatorBus[$1]} = "Hermes" ]]; then
 		operatorBusIcon[$1]="" 
 	fi
-
-	echo -n "${operatorBusIcon[$1]} ${numberBus[$1]} ${destBus[$1]} V: ${timeBus[$1]}"
+	echo -n "<txt><span font_style='normal' fgcolor='#2ff979'>${operatorBusIcon[$1]} ${numberBus[$1]}</span><span fgcolor='#FFFFFF' font_style='italic'> ${destBus[$1]} -</span><span weight='bold' fgcolor='#2fd1f9'> Vertrekt ${timeBus[$1]}</span>"
 	if [ ! "${delayedBus[$1]}" == "null" ]
 	then
-		echo -ne "${delayedBus[$1]}" 
+		echo -n " <span weight='bold' fgcolor='red'>${delayedBus[$1]}</span></txt>"
+	else
+		echo -n "</txt>" 
 	fi
+	echo "<tool>${operatorBus[$1]} lijn ${numberBus[$1]}</tool>"
