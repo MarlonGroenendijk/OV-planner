@@ -6,12 +6,16 @@
 #usage: (script) [first bus to depart; 0] [second bus; 1] etc...
 #example: ./widget.sh 0
 
+#Generic
+readarray -t stationName < <(cat /tmp/wdg-$2 | jq -r '.location .name')
+readarray -t stationPlace < <(cat /tmp/wdg-$2 | jq -r '.location .place .name')
+
 #Bus
-readarray -t destBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .destinationName')
-readarray -t numberBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .service')
-readarray -t timeBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .time')
-readarray -t operatorBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .operatorName')
-readarray -t delayedBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[] .realtimeText')
+readarray -t destBus < <(cat /tmp/wdg-$2 | jq -r '.tabs[0] .departures[] .destinationName')
+readarray -t numberBus < <(cat /tmp/wdg-$2 | jq -r '.tabs[0] .departures[] .service')
+readarray -t timeBus < <(cat /tmp/wdg-$2 | jq -r '.tabs[0] .departures[] .time')
+readarray -t operatorBus < <(cat /tmp/wdg-$2 | jq -r '.tabs[0] .departures[] .operatorName')
+readarray -t delayedBus < <(cat /tmp/wdg-$2 | jq -r '.tabs[0] .departures[] .realtimeText')
 
 	if [[ ${operatorBus[$1]} = "Arriva" ]]; then
 		operatorBusIcon[$1]="" 
@@ -64,11 +68,18 @@ readarray -t delayedBus < <(cat /tmp/deptimeswdg | jq -r '.tabs[0] .departures[]
 	if [[ ${operatorBus[$1]} = "Hermes" ]]; then
 		operatorBusIcon[$1]="" 
 	fi
-	echo -n "<txt><span font_style='normal' fgcolor='#2ff979'>${operatorBusIcon[$1]} ${numberBus[$1]}</span><span fgcolor='#FFFFFF' font_style='italic'> ${destBus[$1]} -</span><span weight='bold' fgcolor='#2fd1f9'> Vertrekt ${timeBus[$1]}</span>"
-	if [ ! "${delayedBus[$1]}" == "null" ]
-	then
-		echo -n " <span weight='bold' fgcolor='red'>${delayedBus[$1]}</span></txt>"
-	else
-		echo -n "</txt>" 
-	fi
-	echo "<tool>${operatorBus[$1]} lijn ${numberBus[$1]}</tool>"
+
+	if [ ! "${numberBus[$1]}" == "" ]
+        then
+                echo -n "<txt><span font_style='normal' fgcolor='#2ff979'>${operatorBusIcon[$1]} ${numberBus[$1]}</span><span fgcolor='#FFFFFF' font_style='italic'> ${destBus[$1]} -</span><span weight='bold' fgcolor='#2fd1f9'> Vertrekt ${timeBus[$1]}</span>"
+			if [ ! "${delayedBus[$1]}" == "null" ]
+		then
+			echo -n " <span weight='bold' fgcolor='red'>${delayedBus[$1]}</span></txt>"
+		else
+			echo -n "</txt>"
+		fi
+		echo "<tool>${operatorBus[$1]} lijn ${numberBus[$1]} vanaf ${stationName[0]}, ${stationPlace[0]}</tool>"
+        else
+                echo -n "<txt><span font_style='italic'>Geen informatie beschikbaar</span></txt>"
+                echo -n "<tool>Er rijden momenteel geen bussen vanaf ${stationName[0]}, ${stationPlace[0]}</tool>"
+        fi
