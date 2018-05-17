@@ -41,7 +41,7 @@ readarray -t delayedBus < <(cat /tmp/wdg-$2 | jq -r '.tabs[0] .departures[] .rea
 	if [[ ${operatorBus[$1]} = "Qbuzz" ]]; then
 		operatorBusIcon[$1]="" 
 	fi
-	if [[ ${operatorBus[$1]} = "Levelink" ]]; then
+	if [[ ${operatorBus[$1]} = "Busverkehr Levelink" ]]; then
 		operatorBusIcon[$1]="" 
 	fi
 	if [[ ${operatorBus[$1]} = "U-OV" ]]; then
@@ -68,18 +68,24 @@ readarray -t delayedBus < <(cat /tmp/wdg-$2 | jq -r '.tabs[0] .departures[] .rea
 	if [[ ${operatorBus[$1]} = "Hermes" ]]; then
 		operatorBusIcon[$1]="" 
 	fi
+	if [[ ${operatorBus[$1]} = "null" ]]; then
+		operatorBusIcon[$1]="" 
+	fi
 
 	if [ ! "${numberBus[$1]}" == "" ]
         then
-                echo -n "<txt><span font_style='normal' fgcolor='#2ff979'>${operatorBusIcon[$1]} ${numberBus[$1]}</span><span fgcolor='#FFFFFF' font_style='italic'> ${destBus[$1]} -</span><span weight='bold' fgcolor='#2fd1f9'> Vertrekt ${timeBus[$1]}</span>"
+                echo -n "<txt><span font_style='normal' fgcolor='#2ff979'>${operatorBusIcon[$1]} <b>${numberBus[$1]}</b></span> ${destBus[$1]} - <span weight='bold' fgcolor='#2fd1f9'>${timeBus[$1]}</span>"
 			if [ ! "${delayedBus[$1]}" == "null" ]
 		then
 			echo -n " <span weight='bold' fgcolor='red'>${delayedBus[$1]}</span></txt>"
+			echo "<tool>Vertraagde ${operatorBusIcon[$1]} ${operatorBus[$1]} lijn ${numberBus[$1]} vanaf ${stationName[0]}, ${stationPlace[0]}</tool>"
 		else
 			echo -n "</txt>"
+			echo "<tool>${operatorBusIcon[$1]} ${operatorBus[$1]} lijn ${numberBus[$1]} vanaf ${stationName[0]}, ${stationPlace[0]}</tool>"
 		fi
-		echo "<tool>${operatorBus[$1]} lijn ${numberBus[$1]} vanaf ${stationName[0]}, ${stationPlace[0]}</tool>"
+
         else
-                echo -n "<txt><span font_style='italic'>Geen informatie beschikbaar</span></txt>"
+                echo -n "<txt><span font_style='italic' weight='bold' color='red'>Geen informatie beschikbaar</span></txt>"
                 echo -n "<tool>Er rijden momenteel geen bussen vanaf ${stationName[0]}, ${stationPlace[0]}</tool>"
+		echo "<tool>Geen informatie beschikbaar. Controleer de verbinding.</tool>"
         fi
